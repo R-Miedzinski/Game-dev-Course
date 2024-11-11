@@ -5,19 +5,6 @@
 
 #include <SFML/Graphics.hpp>
 
-const GLchar* vertexSource = 
-"#version 330 core\n"
-"layout (location = 0) in vec3 position;\n"
-"void main() {\n"
-" gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
-"}";
-
-const GLchar* fragmentSource = 
-"#version 330 core\n"
-"out vec4 fragmentColor;\n"
-"void main() {\n"
-" fragmentColor = vec4(1.0, 0.0, 0.0, 1.0);\n"
-"}";
 
 int main()
 {
@@ -33,12 +20,25 @@ int main()
     gladLoadGL();
     glViewport(0, 0, static_cast<GLsizei>(window.getSize().x), static_cast<GLsizei>(window.getSize().y));
 
-    GLuint vertexShaderId = CreateShader(vertexSource, GL_VERTEX_SHADER);
-    GLuint fragmentShaderId = CreateShader(fragmentSource, GL_FRAGMENT_SHADER);
+    // shader setup
+    const char* testPathVert = "src/graphics/shaders/test_vertex.vert";
+    const char* testPathFrag = "src/graphics/shaders/test_fragment.frag";
+    std::string testVertShader = ReadShaderSource(testPathVert);
+    std::string testFragShader = ReadShaderSource(testPathFrag);
 
+    float points[] = {
+    // x y z
+    0.75f, -0.75f, 0.0f,
+    0.75f, 0.75f, 0.0f,
+    -0.75f, 0.75f, 0.0f,
+    -0.75f, -0.75f, 0.0f,
+    };
+
+    GLuint vertexShaderId = CreateShader(testVertShader.c_str(), GL_VERTEX_SHADER);
+    GLuint fragmentShaderId = CreateShader(testFragShader.c_str(), GL_FRAGMENT_SHADER);
 
     GLuint programId = CreateProgram(vertexShaderId, fragmentShaderId);
-    std::pair<GLuint, GLuint> arrayBuffers = CreateVertexBufferObject();
+    std::pair<GLuint, GLuint> arrayBuffers = CreateVertexBufferObject(points, sizeof(points));
 
     GLuint vbo = arrayBuffers.first;
     GLuint vao = arrayBuffers.second;
@@ -50,6 +50,10 @@ int main()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+
+            if (event.type == sf::Event::Resized) {
+                glViewport(0, 0, static_cast<GLsizei>(window.getSize().x), static_cast<GLsizei>(window.getSize().y));
+            }
         }
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
