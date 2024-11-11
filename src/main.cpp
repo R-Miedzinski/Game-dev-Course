@@ -1,4 +1,7 @@
 #include <utility>
+#include <iostream>
+#include <ctime>
+#include <unistd.h>
 
 #include <glad/glad.h>
 #include <graphics.h>
@@ -8,6 +11,17 @@
 
 int main()
 {
+    // timestep setup
+    std::time_t timer;
+    std::time(&timer);
+
+    double t = 0.0;
+    const double dt = 1.0/60.0;
+
+    double currentTime = timer;
+    double accumulator = 0.0;
+
+    // SFML window setup
     sf::ContextSettings contextSettings;
     contextSettings.depthBits = 24;
     contextSettings.sRgbCapable = false;
@@ -43,8 +57,17 @@ int main()
     GLuint vbo = arrayBuffers.first;
     GLuint vao = arrayBuffers.second;
 
+    // application open
     while (window.isOpen())
-    {
+    {    
+        std::time(&timer);
+        double newTime = timer;
+        double frameTime = newTime - currentTime;
+        
+        currentTime = newTime;
+
+        accumulator += frameTime;
+
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -55,17 +78,25 @@ int main()
                 glViewport(0, 0, static_cast<GLsizei>(window.getSize().x), static_cast<GLsizei>(window.getSize().y));
             }
         }
+   
+        while(accumulator >= dt){
+            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            
+            glUseProgram(programId);
+            glBindVertexArray(vao);
+            
+            glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    
-    glUseProgram(programId);
-    glBindVertexArray(vao);
-    
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    window.display();
+            accumulator -= dt;
+            t += dt;
+        }
+
+        // render loop finish, display state
+        window.display();
     }
 
+    // application cleanup
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
     glDeleteProgram(programId);
