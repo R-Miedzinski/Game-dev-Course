@@ -6,22 +6,22 @@
 #include <SFML/Graphics.hpp>
 
 const GLchar* vertexSource = 
-"#version 330 core"
-"layout (location = 0) in vec3 position;"
-"void main() {"
-" gl_Position = vec4(position.x, position.y, position.z, 1.0);"
+"#version 330 core\n"
+"layout (location = 0) in vec3 position;\n"
+"void main() {\n"
+" gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
 "}";
 
 const GLchar* fragmentSource = 
-"#version 330 core"
-"out vec4 fragmentColor;"
-"void main() {"
-" fragmentColor = vec4(1.0, 0.5, 0.2, 1.0);"
+"#version 330 core\n"
+"out vec4 fragmentColor;\n"
+"void main() {\n"
+" fragmentColor = vec4(1.0, 0.0, 0.0, 1.0);\n"
 "}";
 
 int main()
 {
-     sf::ContextSettings contextSettings;
+    sf::ContextSettings contextSettings;
     contextSettings.depthBits = 24;
     contextSettings.sRgbCapable = false;
     contextSettings.minorVersion = 3;
@@ -61,6 +61,12 @@ int main()
     glDrawArrays(GL_TRIANGLES, 0, 3);
     window.display();
     }
+
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vbo);
+    glDeleteProgram(programId);
+    glDeleteShader(vertexShaderId);
+    glDeleteShader(fragmentShaderId);
 
     return 0;
 }
