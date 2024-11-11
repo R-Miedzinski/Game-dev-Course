@@ -8,7 +8,6 @@ This project is a game developed during `Programowanie gier komputerowych` cours
 
 To setup the project on Ubuntu one needs:
  - `c++` compiler like `g++`
- - `cmake`
  - installed SFML library
 
 ### Installing SFML on Linux
@@ -21,28 +20,20 @@ sudo apt-get install libsfml-dev
 
 for full guide refer to [official SFML Linux guide]{https://www.sfml-dev.org/tutorials/2.6/start-linux.php}
 
-### Setup build directory
-
-`setup.sh` script is provided to manage build setup process of the project.
-
-First run 
-
-```bash
-bash ./setup.sh
-```
-
-to generate `build` directory and setup `cmake`.
-
 ### Building project
 
-Setup script will automatically build the project's executable.
-
-In order to rebuild project manually, in the `build` directory run:
+In order to compile project run:
 
 ```bash
-cmake --build .
+make compile
 ```
+
+This will create `sfml-app` file to run the application.
 
 ### Running project
 
-To run project run compiled executable `Project.out` in `build`.
+To run project compiled program execute:
+
+```bash
+make run
+```
