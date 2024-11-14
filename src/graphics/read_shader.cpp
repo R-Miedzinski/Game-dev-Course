@@ -1,7 +1,10 @@
 #include <fstream>
 #include <iostream>
+#include <string>
 
 #include <glad/glad.h>
+#include <graphics.h>
+
 
 std::string ReadShaderSource(const char* source) {
     std::string contents = "";

@@ -1,6 +1,9 @@
+#include <graphics.h>
+
 #include <iostream>
 
 #include <glad/glad.h>
+
 
 GLuint CreateShader(const GLchar *shaderSource, GLenum shaderType) {
     const GLuint shaderId = glCreateShader(shaderType);

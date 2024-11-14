@@ -1,6 +1,9 @@
+#include <graphics.h>
+
 #include <utility>
 
 #include <glad/glad.h>
+
 
 std::pair<GLuint, GLuint> CreateVertexBufferObject(float* points, int size) {
     GLuint vbo, vao;

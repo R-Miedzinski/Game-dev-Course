@@ -1,8 +1,11 @@
+#include <graphics.h>
+
 #include <iostream>
 
 #include <glad/glad.h>
 
-GLuint CreateProgram(GLuint vertexShader, GLuint fragmentShader, GLuint geometryShader = 0) 
+
+GLuint CreateProgram(GLuint vertexShader, GLuint fragmentShader, GLuint geometryShader) 
 {
     const GLuint programId = glCreateProgram();
     if(!programId) {

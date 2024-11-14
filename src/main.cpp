@@ -7,18 +7,18 @@
 #include <graphics.h>
 
 #include <SFML/Graphics.hpp>
-
+#include "glm/glm.hpp"
+#include "glm/ext.hpp"
 
 int main()
 {
     // timestep setup
-    std::time_t timer;
-    std::time(&timer);
+    sf::Clock timer = sf::Clock();
 
     double t = 0.0;
     const double dt = 1.0/60.0;
 
-    double currentTime = timer;
+    double currentTime = timer.restart().asSeconds();
     double accumulator = 0.0;
 
     // SFML window setup
@@ -60,8 +60,7 @@ int main()
     // application open
     while (window.isOpen())
     {    
-        std::time(&timer);
-        double newTime = timer;
+        double newTime = timer.getElapsedTime().asSeconds();
         double frameTime = newTime - currentTime;
         
         currentTime = newTime;
@@ -84,8 +83,22 @@ int main()
             glClear(GL_COLOR_BUFFER_BIT);
             
             glUseProgram(programId);
-            glBindVertexArray(vao);
+
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::rotate(model, glm::radians(180.0f * static_cast<float>(sin(t))), glm::vec3(1.0f, 0.0f, 0.0f));
             
+            glm::mat4 view = glm::mat4(1.0f);
+            view = glm::lookAt(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+            glm::mat4 projection = glm::mat4(1.0f);
+            projection = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 100.0f);
+            
+            glm::mat4 mvp = projection * view * model;
+            
+            GLuint mvpLocation = glGetUniformLocation(programId, "mvp");
+            glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(model));
+
+            glBindVertexArray(vao);
             glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
             accumulator -= dt;
