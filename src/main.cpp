@@ -1,14 +1,12 @@
 #include <utility>
 #include <iostream>
-#include <ctime>
-#include <unistd.h>
 
 #include <glad/glad.h>
 #include <graphics.h>
 
 #include <SFML/Graphics.hpp>
-#include "glm/glm.hpp"
-#include "glm/ext.hpp"
+#include <glm/glm.hpp>
+#include <glm/ext.hpp>
 
 int main()
 {
