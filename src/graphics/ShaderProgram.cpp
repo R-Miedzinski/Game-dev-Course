@@ -17,7 +17,13 @@ ShaderProgram::ShaderProgram() {
 }
 
 ShaderProgram::ShaderProgram(ShaderProgram &&rhs) noexcept
-	: m_programId(std::exchange(rhs.m_programId, 0))
+	: m_programId(std::exchange(rhs.m_programId, 0)),
+	s_vertexShaderSource(std::exchange(rhs.s_vertexShaderSource, "")),
+	i_vertexShader(std::exchange(rhs.i_vertexShader, 0)),
+	s_fragmentShaderSource(std::exchange(rhs.s_fragmentShaderSource, "")),
+	i_fragmentShader(std::exchange(rhs.i_fragmentShader, 0)),
+	s_geometryShaderSource(std::exchange(rhs.s_geometryShaderSource, "")),
+	i_geometryShader(std::exchange(rhs.i_geometryShader, 0))
 {
 }
 

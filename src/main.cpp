@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <graphics.h>
 #include <ShaderProgram.h>
+#include <Cube.h>
 
 #include <SFML/Graphics.hpp>
 #include <glm/glm.hpp>
@@ -38,26 +39,15 @@ int main()
 
     std::string testFragShader = ReadShaderSource("src/graphics/shaders/test_fragment.frag");
 
-    GLuint debugTexture = CreateTexture("src/graphics/textures/grass_debug.jpg");
-
-    float points[] = {
-        // x y z
-        -0.75f, 0.75f, 0.0f, 0.25f, 2.0f/3.0f,
-        0.75f, 0.75f, 0.0f, 0.5f, 2.0f/3.0f,
-        0.75f, -0.75f, 0.0f, 0.5f, 1.0f/3.0f,
-        -0.75f, -0.75f, 0.0f, 0.25f, 1.0f/3.0f,
-    };
-
     ShaderProgram cubeShader;
 
     cubeShader.AddVertexShader(testVertShader);
     cubeShader.AddFragmentShader(testFragShader);
     cubeShader.CreateProgram();
 
-    std::pair<GLuint, GLuint> arrayBuffers = CreateVertexBufferObject(points, sizeof(points));
+    Cube cube("src/graphics/textures/grass_debug.jpg");
 
-    GLuint vbo = arrayBuffers.first;
-    GLuint vao = arrayBuffers.second;
+    glEnable(GL_DEPTH_TEST);
 
     // application open
     while (window.isOpen())
@@ -84,7 +74,7 @@ int main()
         while (accumulator >= dt)
         {
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             cubeShader.Use();
 
@@ -99,13 +89,12 @@ int main()
 
             glm::mat4 mvp = projection * view * model;
 
-
             cubeShader.SetMat4("mvp", model);
 
-            cubeShader.SetTeture("texture1", debugTexture);
+            cubeShader.SetTeture("texture1", cube.Texture());
 
-            glBindVertexArray(vao);
-            glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+            glBindVertexArray(cube.Vao());
+            glDrawArrays(GL_TRIANGLES, 0, cube.vertices());
 
             accumulator -= dt;
             t += dt;
@@ -114,10 +103,6 @@ int main()
         // render loop finish, display state
         window.display();
     }
-
-    // application cleanup
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
 
     return 0;
 }
