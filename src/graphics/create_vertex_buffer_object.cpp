@@ -1,8 +1,11 @@
+#include <graphics.h>
+
 #include <utility>
 
 #include <glad/glad.h>
 
-std::pair<GLuint, GLuint> CreateVertexBufferObject(float* points, int size) {
+std::pair<GLuint, GLuint> CreateVertexBufferObject(float *points, int size)
+{
     GLuint vbo, vao;
     glGenBuffers(1, &vbo);
     glGenVertexArrays(1, &vao);
@@ -10,8 +13,11 @@ std::pair<GLuint, GLuint> CreateVertexBufferObject(float* points, int size) {
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, size, points, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);

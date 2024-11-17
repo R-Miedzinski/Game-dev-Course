@@ -3,7 +3,7 @@ sfml_path = /usr/local/lib/SFML-2.6.1
 target_name = sfml-app
 
 main = src/main.cpp
-files = src/glad.c $(wildcard src/graphics/*.cpp)
+files = src/glad.c $(wildcard src/graphics/*.cpp) $(wildcard src/assets/*.cpp)
 
 compile:src/main.cpp
 	g++ --verbose ${main} ${files} -o ${target_name} -I./include -I${sfml_path}/include -L${sfml_path}/lib -lsfml-graphics -lsfml-window -lsfml-system
