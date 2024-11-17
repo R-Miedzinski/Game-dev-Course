@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 #include <graphics.h>
+#include <ShaderProgram.h>
 
 #include <SFML/Graphics.hpp>
 #include <glm/glm.hpp>
@@ -14,7 +15,7 @@ int main()
     sf::Clock timer = sf::Clock();
 
     double t = 0.0;
-    const double dt = 1.0/60.0;
+    const double dt = 1.0 / 60.0;
 
     double currentTime = timer.restart().asSeconds();
     double accumulator = 0.0;
@@ -25,31 +26,34 @@ int main()
     contextSettings.sRgbCapable = false;
     contextSettings.minorVersion = 3;
     contextSettings.majorVersion = 3;
-    
+
     sf::Window window(sf::VideoMode(800, 600), "OpenGL", sf::Style::Default, contextSettings);
     window.setActive(true);
-    
+
     gladLoadGL();
     glViewport(0, 0, static_cast<GLsizei>(window.getSize().x), static_cast<GLsizei>(window.getSize().y));
 
     // shader setup
-    const char* testPathVert = "src/graphics/shaders/test_vertex.vert";
-    const char* testPathFrag = "src/graphics/shaders/test_fragment.frag";
-    std::string testVertShader = ReadShaderSource(testPathVert);
-    std::string testFragShader = ReadShaderSource(testPathFrag);
+    std::string testVertShader = ReadShaderSource("src/graphics/shaders/test_vertex.vert");
+
+    std::string testFragShader = ReadShaderSource("src/graphics/shaders/test_fragment.frag");
+
+    GLuint debugTexture = CreateTexture("src/graphics/textures/grass_debug.jpg");
 
     float points[] = {
-    // x y z
-    0.75f, -0.75f, 0.0f,
-    0.75f, 0.75f, 0.0f,
-    -0.75f, 0.75f, 0.0f,
-    -0.75f, -0.75f, 0.0f,
+        // x y z
+        -0.75f, 0.75f, 0.0f, 0.25f, 2.0f/3.0f,
+        0.75f, 0.75f, 0.0f, 0.5f, 2.0f/3.0f,
+        0.75f, -0.75f, 0.0f, 0.5f, 1.0f/3.0f,
+        -0.75f, -0.75f, 0.0f, 0.25f, 1.0f/3.0f,
     };
 
-    GLuint vertexShaderId = CreateShader(testVertShader.c_str(), GL_VERTEX_SHADER);
-    GLuint fragmentShaderId = CreateShader(testFragShader.c_str(), GL_FRAGMENT_SHADER);
+    ShaderProgram cubeShader;
 
-    GLuint programId = CreateProgram(vertexShaderId, fragmentShaderId);
+    cubeShader.AddVertexShader(testVertShader);
+    cubeShader.AddFragmentShader(testFragShader);
+    cubeShader.CreateProgram();
+
     std::pair<GLuint, GLuint> arrayBuffers = CreateVertexBufferObject(points, sizeof(points));
 
     GLuint vbo = arrayBuffers.first;
@@ -57,10 +61,10 @@ int main()
 
     // application open
     while (window.isOpen())
-    {    
+    {
         double newTime = timer.getElapsedTime().asSeconds();
         double frameTime = newTime - currentTime;
-        
+
         currentTime = newTime;
 
         accumulator += frameTime;
@@ -71,30 +75,34 @@ int main()
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            if (event.type == sf::Event::Resized) {
+            if (event.type == sf::Event::Resized)
+            {
                 glViewport(0, 0, static_cast<GLsizei>(window.getSize().x), static_cast<GLsizei>(window.getSize().y));
             }
         }
-   
-        while(accumulator >= dt){
+
+        while (accumulator >= dt)
+        {
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
-            
-            glUseProgram(programId);
+
+            cubeShader.Use();
 
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::rotate(model, glm::radians(180.0f * static_cast<float>(sin(t))), glm::vec3(1.0f, 0.0f, 0.0f));
-            
+            model = glm::rotate(model, glm::radians(180.0f * static_cast<float>(sin(t))), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(model, glm::radians(180.0f * static_cast<float>(cos(t))), glm::vec3(0.0f, 1.0f, 0.0f));
+
             glm::mat4 view = glm::mat4(1.0f);
             view = glm::lookAt(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
             glm::mat4 projection = glm::mat4(1.0f);
-            projection = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 100.0f);
-            
+            projection = glm::perspective(glm::radians(45.0f), static_cast<float>(window.getSize().x)/static_cast<float>(window.getSize().y), 0.1f, 100.0f);
+
             glm::mat4 mvp = projection * view * model;
-            
-            GLuint mvpLocation = glGetUniformLocation(programId, "mvp");
-            glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(model));
+
+
+            cubeShader.SetMat4("mvp", model);
+
+            cubeShader.SetTeture("texture1", debugTexture);
 
             glBindVertexArray(vao);
             glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -110,9 +118,6 @@ int main()
     // application cleanup
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
-    glDeleteProgram(programId);
-    glDeleteShader(vertexShaderId);
-    glDeleteShader(fragmentShaderId);
 
     return 0;
 }
