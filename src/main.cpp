@@ -5,6 +5,7 @@
 #include <graphics.h>
 #include <ShaderProgram.h>
 #include <Cube.h>
+#include <Camera.h>
 
 #include <SFML/Graphics.hpp>
 #include <glm/glm.hpp>
@@ -17,6 +18,7 @@ int main()
 
     double t = 0.0;
     const double dt = 1.0 / 60.0;
+    float velocity = dt * 0.2f;
 
     double currentTime = timer.restart().asSeconds();
     double accumulator = 0.0;
@@ -28,11 +30,19 @@ int main()
     contextSettings.minorVersion = 3;
     contextSettings.majorVersion = 3;
 
+    sf::Vector2i mousePosition = sf::Mouse::getPosition();
+
     sf::Window window(sf::VideoMode(800, 600), "OpenGL", sf::Style::Default, contextSettings);
     window.setActive(true);
 
     gladLoadGL();
     glViewport(0, 0, static_cast<GLsizei>(window.getSize().x), static_cast<GLsizei>(window.getSize().y));
+
+    // Camera setup
+    const glm::vec3 initialPosition = glm::vec3(2.0f, 2.0f, 2.0f);
+    const glm::vec3 initialFront = glm::vec3(-0.5f, -0.5f, -0.5f);
+
+    Camera camera(initialPosition, initialFront, 0.0f, 0.0f, window.getSize());
 
     // shader setup
     std::string testVertShader = ReadShaderSource("src/graphics/shaders/test_vertex.vert");
@@ -67,8 +77,35 @@ int main()
 
             if (event.type == sf::Event::Resized)
             {
-                glViewport(0, 0, static_cast<GLsizei>(window.getSize().x), static_cast<GLsizei>(window.getSize().y));
+                sf::Vector2 windowSize = window.getSize();
+                glViewport(0, 0, static_cast<GLsizei>(windowSize.x), static_cast<GLsizei>(windowSize.y));
+                camera.ResizeWindow(windowSize);
             }
+        }
+
+        // Camera rotation
+        const sf::Vector2i newMousePosition = sf::Mouse::getPosition();
+        camera.Rotate(newMousePosition - mousePosition);
+        mousePosition = newMousePosition;
+
+        //  Camera Move
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+            camera.MoveForward(velocity);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+            camera.MoveBackward(velocity);
+        } 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+            camera.MoveLeft(velocity);
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+            camera.MoveRight(velocity);
+        } 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+            camera.MoveUp(velocity);
+        } 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::C)) {
+            camera.MoveDown(velocity);
         }
 
         while (accumulator >= dt)
@@ -79,17 +116,12 @@ int main()
             cubeShader.Use();
 
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::rotate(model, glm::radians(180.0f * static_cast<float>(sin(t))), glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(model, glm::radians(180.0f * static_cast<float>(cos(t))), glm::vec3(0.0f, 1.0f, 0.0f));
-
-            glm::mat4 view = glm::mat4(1.0f);
-            view = glm::lookAt(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-            glm::mat4 projection = glm::mat4(1.0f);
-            projection = glm::perspective(glm::radians(45.0f), static_cast<float>(window.getSize().x)/static_cast<float>(window.getSize().y), 0.1f, 100.0f);
+            glm::mat4 view = camera.View();
+            glm::mat4 projection = camera.Projection();
 
             glm::mat4 mvp = projection * view * model;
 
-            cubeShader.SetMat4("mvp", model);
+            cubeShader.SetMat4("mvp", mvp);
 
             cubeShader.SetTeture("texture1", cube.Texture());
 
