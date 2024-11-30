@@ -1,7 +1,7 @@
 #include <CubePalette.h>
 #include <string>
 
-std::string grass_texture = "src/graphics/textures/grass_debug.jpg";
+std::string grass_texture = "src/graphics/textures/grass.jpg";
 std::string stone_texture = "src/graphics/textures/stone.jpg";
 
 CubePalette::CubePalette() {

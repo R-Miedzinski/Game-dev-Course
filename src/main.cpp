@@ -44,7 +44,7 @@ int main()
     glViewport(0, 0, static_cast<GLsizei>(window.getSize().x), static_cast<GLsizei>(window.getSize().y));
 
     // Camera setup
-    const glm::vec3 initialPosition = glm::vec3(2.0f, 2.0f, 2.0f);
+    const glm::vec3 initialPosition = glm::vec3(20.0f, 50.0f, 0.0f);
     const glm::vec3 initialFront = glm::vec3(-0.5f, -0.5f, -0.5f);
 
     Camera camera(initialPosition, initialFront, 0.0f, 0.0f, window.getSize());
@@ -64,14 +64,14 @@ int main()
     
     const uint8_t WIDTH = 16;
     const uint8_t DEPTH = 16;
-    const uint8_t HEIGHT = 32;
+    const uint8_t HEIGHT = 128;
 
     std::vector<Chunk<DEPTH, WIDTH, HEIGHT>> chunks;
 
     chunks.push_back(Chunk<DEPTH, WIDTH, HEIGHT>(glm::vec2(0, 0), cubePalette));
     chunks.back().Generate(rng);
 
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(0.3f, 0.3f, 0.6f, 1.0f);
     glEnable(GL_DEPTH_TEST);
 
     glEnable(GL_CULL_FACE);
