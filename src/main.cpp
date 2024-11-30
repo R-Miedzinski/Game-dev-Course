@@ -1,10 +1,15 @@
 #include <utility>
 #include <iostream>
+#include <vector>
 
 #include <glad/glad.h>
 #include <graphics.h>
 #include <ShaderProgram.h>
 #include <Cube.h>
+#include <CubePalette.h>
+#include <PerlinNoise.h>
+
+#include <Chunk.h>
 #include <Camera.h>
 
 #include <SFML/Graphics.hpp>
@@ -45,9 +50,8 @@ int main()
     Camera camera(initialPosition, initialFront, 0.0f, 0.0f, window.getSize());
 
     // shader setup
-    std::string testVertShader = ReadShaderSource("src/graphics/shaders/test_vertex.vert");
-
-    std::string testFragShader = ReadShaderSource("src/graphics/shaders/test_fragment.frag");
+    std::string testVertShader = ReadShaderSource("src/graphics/shaders/object_vertex.vert");
+    std::string testFragShader = ReadShaderSource("src/graphics/shaders/cube_fragment.frag");
 
     ShaderProgram cubeShader;
 
@@ -55,7 +59,17 @@ int main()
     cubeShader.AddFragmentShader(testFragShader);
     cubeShader.CreateProgram();
 
-    Cube cube("src/graphics/textures/grass_debug.jpg");
+    CubePalette cubePalette = CubePalette(); 
+    PerlinNoise rng = PerlinNoise();
+    
+    const uint8_t WIDTH = 16;
+    const uint8_t DEPTH = 16;
+    const uint8_t HEIGHT = 32;
+
+    std::vector<Chunk<DEPTH, WIDTH, HEIGHT>> chunks;
+
+    chunks.push_back(Chunk<DEPTH, WIDTH, HEIGHT>(glm::vec2(0, 0), cubePalette));
+    chunks.back().Generate(rng);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -115,18 +129,16 @@ int main()
 
             cubeShader.Use();
 
-            glm::mat4 model = glm::mat4(1.0f);
             glm::mat4 view = camera.View();
             glm::mat4 projection = camera.Projection();
 
-            glm::mat4 mvp = projection * view * model;
+            glm::mat4 vp = projection * view;
 
-            cubeShader.SetMat4("mvp", mvp);
+            cubeShader.SetMat4("view_projection", vp);
 
-            cubeShader.SetTeture("texture1", cube.Texture());
-
-            glBindVertexArray(cube.Vao());
-            glDrawArrays(GL_TRIANGLES, 0, cube.vertices());
+            for(int chunk_index=0; chunk_index < chunks.size(); chunk_index++) {
+                chunks[chunk_index].Draw(cubeShader);
+            }
 
             accumulator -= dt;
             t += dt;

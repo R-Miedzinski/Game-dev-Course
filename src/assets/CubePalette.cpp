@@ -5,8 +5,8 @@ std::string grass_texture = "src/graphics/textures/grass_debug.jpg";
 std::string stone_texture = "src/graphics/textures/stone.jpg";
 
 CubePalette::CubePalette() {
-    m_palette.emplace(Cube::Type::None, Cube(grass_texture));
-    m_palette.emplace(Cube::Type::None, Cube(stone_texture));
+    m_palette.emplace(Cube::Type::Grass, Cube(grass_texture));
+    m_palette.emplace(Cube::Type::Stone, Cube(stone_texture));
 }
 
 const Cube& CubePalette::LookUp(Cube::Type type) {

@@ -4,9 +4,10 @@ layout (location = 1) in vec2 inTexCoords;
 
 out vec2 texCoords;
 
-uniform mat4 mvp;
+uniform mat4 model;
+uniform mat4 view_projection;
 
 void main() {
-    gl_Position = mvp * vec4(position, 1.0);
+    gl_Position = view_projection * model * vec4(position, 1.0);
     texCoords = inTexCoords;
 }

@@ -33,7 +33,7 @@ private:
 	GLuint m_ebo{ 0 };
 	GLuint m_texture{ 0 };
 
-	GLuint CreateTexture(const std::string& path);
+	void CreateTexture(const std::string& path);
 	void CreateVertexBufferObject();
 
 	static std::array<float, 6 * 6 * 5> s_vertices;
