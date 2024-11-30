@@ -71,7 +71,12 @@ int main()
     chunks.push_back(Chunk<DEPTH, WIDTH, HEIGHT>(glm::vec2(0, 0), cubePalette));
     chunks.back().Generate(rng);
 
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glEnable(GL_DEPTH_TEST);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CW);
 
     // application open
     while (window.isOpen())
@@ -124,7 +129,6 @@ int main()
 
         while (accumulator >= dt)
         {
-            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             cubeShader.Use();
