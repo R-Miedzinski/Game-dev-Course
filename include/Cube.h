@@ -7,6 +7,12 @@
 
 class Cube {
 public:
+	enum class Type {
+		None,
+		Grass,
+		Stone
+	};
+
 	Cube(const std::string& texturePath);
 	Cube(GLuint textureId);
 
@@ -20,7 +26,6 @@ public:
 	GLuint Vbo() const { return m_vbo; }
 	GLuint Vao() const { return m_vao; }
 	GLuint Texture() const { return m_texture; }
-	int vertices() { return sizeof(s_vertices)/sizeof(float)/5;}
 
 private:
 	GLuint m_vbo{ 0 };

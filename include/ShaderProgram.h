@@ -18,7 +18,7 @@ public:
 	void Use();
 
 	void SetInt(const std::string_view name, int value);
-	void SetTeture(const std::string_view name, int texture);
+	void SetTexture(const std::string_view name, int texture);
 	void SetMat4(const std::string_view name, const glm::mat4 &value);
 
 	void AddVertexShader(std::string shaderSource);
