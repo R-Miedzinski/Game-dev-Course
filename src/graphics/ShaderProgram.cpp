@@ -76,7 +76,7 @@ void ShaderProgram::Use() {
 	}
 }
 
-void ShaderProgram::SetTeture(const std::string_view name, int texture) {
+void ShaderProgram::SetTexture(const std::string_view name, int texture) {
 	if (m_programId != 0) {
 		GLuint texLocation = glGetUniformLocation(m_programId, name.data());
 		glUniform2d(texLocation, 1, texture);
