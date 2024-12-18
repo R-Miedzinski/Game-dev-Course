@@ -90,6 +90,13 @@ void ShaderProgram::SetMat4(const std::string_view name, const glm::mat4 &value)
 	}
 }
 
+void ShaderProgram::SetMat4Instanced(const std::string_view name, const std::vector<glm::mat4> &value) {
+	if (m_programId != 0) {
+		GLuint location = glGetUniformLocation(m_programId, name.data());
+		glUniformMatrix4fv(location, value.size(), GL_FALSE, &value[0][0][0]);
+	}
+}
+
 void ShaderProgram::AddVertexShader(std::string shaderSource) {
 	s_vertexShaderSource = shaderSource;
 	i_vertexShader = CreateShader(s_vertexShaderSource.c_str(), GL_VERTEX_SHADER);
