@@ -9,6 +9,8 @@ public:
 
 	glm::mat4 View() const { return m_lookAt; }
 	glm::mat4 Projection() const { return m_projection; }
+	glm::vec3 Postion() const { return m_position; }
+	glm::vec3 Direction() const { return m_front; }
 
 	void Rotate(const sf::Vector2i& mouseDelta);
 	void MoveForward(float velocity);

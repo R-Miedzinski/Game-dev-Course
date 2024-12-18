@@ -44,7 +44,7 @@ int main()
     glViewport(0, 0, static_cast<GLsizei>(window.getSize().x), static_cast<GLsizei>(window.getSize().y));
 
     // Camera setup
-    const glm::vec3 initialPosition = glm::vec3(20.0f, 50.0f, 0.0f);
+    const glm::vec3 initialPosition = glm::vec3(20.0f, 40.0f, 0.0f);
     const glm::vec3 initialFront = glm::vec3(-0.5f, -0.5f, -0.5f);
 
     Camera camera(initialPosition, initialFront, 0.0f, 0.0f, window.getSize());
@@ -64,11 +64,17 @@ int main()
     
     const uint8_t WIDTH = 16;
     const uint8_t DEPTH = 16;
-    const uint8_t HEIGHT = 128;
+    const uint8_t HEIGHT = 32;
 
     std::vector<Chunk<DEPTH, WIDTH, HEIGHT>> chunks;
 
     chunks.push_back(Chunk<DEPTH, WIDTH, HEIGHT>(glm::vec2(0, 0), cubePalette));
+    chunks.back().Generate(rng);
+    chunks.push_back(Chunk<DEPTH, WIDTH, HEIGHT>(glm::vec2(1, 0), cubePalette));
+    chunks.back().Generate(rng);
+    chunks.push_back(Chunk<DEPTH, WIDTH, HEIGHT>(glm::vec2(0, 1), cubePalette));
+    chunks.back().Generate(rng);
+    chunks.push_back(Chunk<DEPTH, WIDTH, HEIGHT>(glm::vec2(1, 1), cubePalette));
     chunks.back().Generate(rng);
 
     glClearColor(0.3f, 0.3f, 0.6f, 1.0f);
@@ -129,19 +135,33 @@ int main()
 
         while (accumulator >= dt)
         {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            Ray interaction_ray = Ray(camera.Postion(), camera.Direction());
 
-            cubeShader.Use();
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             glm::mat4 view = camera.View();
             glm::mat4 projection = camera.Projection();
 
             glm::mat4 vp = projection * view;
-
+            
+            cubeShader.Use();
+            
             cubeShader.SetMat4("view_projection", vp);
 
             for(int chunk_index=0; chunk_index < chunks.size(); chunk_index++) {
                 chunks[chunk_index].Draw(cubeShader);
+
+                Chunk<DEPTH, WIDTH, HEIGHT>::HitRecord chunk_record; 
+                Ray::HitType hit = chunks[chunk_index].Hit(interaction_ray, 0.001f, 5.0f, chunk_record);
+                if (hit == Ray::HitType::Miss) {
+                    std::cout << "Miss with chunk: " << chunk_index <<std::endl;
+                } else if(hit == Ray::HitType::Hit) {
+                    std::cout << "Hit with chunk: " << chunk_index << std::endl
+                    << "Block hit: " 
+                    << chunk_record.m_cubeIndex.x << "; "
+                    << chunk_record.m_cubeIndex.y << "; "
+                    << chunk_record.m_cubeIndex.z << std::endl;
+                }
             }
 
             accumulator -= dt;
