@@ -42,17 +42,15 @@ inline Chunk<Depth, Width, Height>::Chunk(const glm::vec2& origin, CubePalette& 
 
 template<uint8_t Depth, uint8_t Width, uint8_t Height>
 inline void Chunk<Depth, Width, Height>::Generate(const PerlinNoise& rng) {
-	std::cout << "Generating chunk" << std::endl 
-	<< static_cast<size_t>(Width) << "; " 
-	<< static_cast<size_t>(Depth) << "; " 
-	<< static_cast<size_t>(Height)
-	<< std::endl << "x: " << m_origin[0] << "\ny: "<< m_origin[1] << std::endl;
+	// std::cout << "Generating chunk" << 
+	// << std::endl << "x: " << m_origin[0] << "\ny: "<< m_origin[1] << std::endl;
 	for(int x=0; x < static_cast<size_t>(Width); x++) {
 		for(int z=0; z < static_cast<size_t>(Depth); z++) {
 			float local_noise = rng.At(glm::vec3(
 				(float)x/static_cast<size_t>(Width) + m_origin[0], 
 				0.25f, 
-				(float)z/static_cast<size_t>(Depth) + m_origin[1]));
+				(float)z/static_cast<size_t>(Depth) + m_origin[1]
+				));
 
 			int local_height = floor(local_noise * static_cast<size_t>(Height)/4 + static_cast<size_t>(Height)/2);
 
@@ -86,7 +84,8 @@ inline void Chunk<Depth, Width, Height>::Draw(ShaderProgram& shader) const {
 			glm::mat4 model = glm::mat4(1.0f);
 
 			glm::vec3 cube_position = IndexToCoords(cube_id);
-			model[3] = glm::vec4(cube_position, 1.0f) + glm::vec4(m_origin, 0.0f, 1.0f);
+			model[3] = glm::vec4(cube_position, 1.0f) + 
+				glm::vec4(m_origin[0], 0.0f, m_origin[1], 1.0f);
 
 			shader.SetMat4("model", model);
 
