@@ -8,6 +8,7 @@
 #include <Cube.h>
 #include <CubePalette.h>
 #include <PerlinNoise.h>
+#include <World.h>
 
 #include <Chunk.h>
 #include <Camera.h>
@@ -42,9 +43,9 @@ int main()
 
     gladLoadGL();
     glViewport(0, 0, static_cast<GLsizei>(window.getSize().x), static_cast<GLsizei>(window.getSize().y));
-
+    
     // Camera setup
-    const glm::vec3 initialPosition = glm::vec3(20.0f, 50.0f, 0.0f);
+    const glm::vec3 initialPosition = glm::vec3(0.0f, static_cast<float_t>(World::HEIGHT), 0.0f);
     const glm::vec3 initialFront = glm::vec3(-0.5f, -0.5f, -0.5f);
 
     Camera camera(initialPosition, initialFront, 0.0f, 0.0f, window.getSize());
@@ -59,17 +60,8 @@ int main()
     cubeShader.AddFragmentShader(testFragShader);
     cubeShader.CreateProgram();
 
-    CubePalette cubePalette = CubePalette(); 
-    PerlinNoise rng = PerlinNoise();
-    
-    const uint8_t WIDTH = 16;
-    const uint8_t DEPTH = 16;
-    const uint8_t HEIGHT = 128;
-
-    std::vector<Chunk<DEPTH, WIDTH, HEIGHT>> chunks;
-
-    chunks.push_back(Chunk<DEPTH, WIDTH, HEIGHT>(glm::vec2(0, 0), cubePalette));
-    chunks.back().Generate(rng);
+    // World Setup
+    World world = World();
 
     glClearColor(0.3f, 0.3f, 0.6f, 1.0f);
     glEnable(GL_DEPTH_TEST);
@@ -140,10 +132,9 @@ int main()
 
             cubeShader.SetMat4("view_projection", vp);
 
-            for(int chunk_index=0; chunk_index < chunks.size(); chunk_index++) {
-                chunks[chunk_index].Draw(cubeShader);
-            }
-
+            world.LoadWorld(camera.Position());
+            world.RenderWorld(cubeShader);
+            
             accumulator -= dt;
             t += dt;
         }
